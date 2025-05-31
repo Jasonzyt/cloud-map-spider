@@ -1,0 +1,39 @@
+{
+  "targets": [
+    {
+      "preset": "nsmc.org.cn",
+      "name": "FY4B_AGRI_IMG_DISK_GCLR_NOM",
+      "manifest": "https://img.nsmc.org.cn/PORTAL/NSMC/XML/FY4B/FY4B_AGRI_IMG_DISK_GCLR_NOM.xml",
+      "interval": 3600
+    },
+    {
+      "preset": "nsmc.org.cn",
+      "name": "FY4B_AGRI_IMG_DISK_NATR_NOM",
+      "manifest": "https://img.nsmc.org.cn/PORTAL/NSMC/XML/FY4B/FY4B_AGRI_IMG_DISK_NATR_NOM.xml",
+      "interval": 3600
+    },
+    {
+      "preset": "nsmc.org.cn",
+      "name": "FY4B_AGRI_IMG_DISK_SWCI_NOM",
+      "manifest": "https://img.nsmc.org.cn/PORTAL/NSMC/XML/FY4B/FY4B_AGRI_IMG_DISK_SWCI_NOM.xml",
+      "interval": 3600
+    },
+    {
+      "preset": "nsmc.org.cn",
+      "name": "FY4B_AGRI_IMG_DISK_AMSS_NOM",
+      "manifest": "https://img.nsmc.org.cn/PORTAL/NSMC/XML/FY4B/FY4B_AGRI_IMG_DISK_AMSS_NOM.xml",
+      "interval": 3600
+    },
+    {
+      "preset": "nsmc.org.cn",
+      "name": "FY4B_AGRI_IMG_DISK_CLOD_NOM",
+      "manifest": "https://img.nsmc.org.cn/PORTAL/NSMC/XML/FY4B/FY4B_AGRI_IMG_DISK_CLOD_NOM.xml",
+      "interval": 3600
+    }
+  ],
+  "presets": {
+    "nsmc.org.cn": {
+      "export": "./data/{target_name}/"
+    }
+  }
+}
