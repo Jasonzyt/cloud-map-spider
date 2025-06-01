@@ -45,7 +45,7 @@ def delay_until(timestamp: float):
     delay(timestamp - now)
 
 
-def start_thread(target, *args, **kwargs):
+def start_thread(target, args=(), kwargs=None):
     thread = threading.Thread(target=target, args=args, kwargs=kwargs)
     thread.daemon = True  # Set as daemon thread
     thread.start()
