@@ -10,7 +10,7 @@ class Target:
         self.interval = interval
 
     def __repr__(self):
-        return f"Target(preset='{self.preset}', name='{self.name}', manifest='{self.manifest}', interval={self.interval})"
+        return f"Target(preset='{self.preset}', name='{self.name}')"
 
 
 class Preset:
