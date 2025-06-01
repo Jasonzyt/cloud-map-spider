@@ -4,8 +4,9 @@ import queue
 import requests
 
 from config import Preset, Target
+import exporter
 from logger import log_info
-from presets import MANIFEST_PARSERS
+from preset import MANIFEST_PARSERS
 from async_utils import Promise, delay
 
 
@@ -21,10 +22,10 @@ def process_queue():
         log_info(f"GET {url} {response.status_code} {response.reason}")
         if promise is not None:
             promise.resolve(response)
-        delay(10)
+        delay(5)
 
 
-def http_get(url):
+def http_get(url) -> requests.Response:
     log_info(f"Adding {url} to queue for processing...")
     promise = Promise()
     q.put((url, promise))
@@ -39,25 +40,10 @@ def get_manifest(target: Target):
     return manifest
 
 
-def download_image(url: str, dest: str):
-    path = dest
-    if os.path.exists(dest):
-        log_info(f"File {dest} already exists, skipping download.")
-        return
-    if os.path.isdir(dest):
-        # If dest is a directory, construct the full path
-        filename = os.path.basename(url)
-        path = os.path.join(dest, filename)
-        if os.path.exists(path):
-            log_info(f"File {path} already exists, skipping download.")
-            return
-    if not os.path.exists(os.path.dirname(path)):
-        os.makedirs(os.path.dirname(path))
-    log_info(f"Downloading {url} to {path}...")
+def get_image(url: str) -> bytes:
     response = http_get(url)
-
-    with open(dest, "wb") as file:
-        file.write(response.content)
+    response.raise_for_status()  # Raise an error for bad responses
+    return response.content
 
 
 def poll(target: Target, preset: Preset):
@@ -71,29 +57,40 @@ def poll(target: Target, preset: Preset):
     for image in manifest:
         timestamp = image.get("timestamp")
         url = image.get("url")
-        basename = os.path.basename(url)
-        fmt = preset.export
-        dest = fmt.format(
-            basename=basename,
-            target_name=target.name,
-            timestamp=timestamp,
-            utcdate=(
+        variables = {
+            "target_name": target.name,
+            "timestamp": timestamp,
+            "utcdate": (
                 datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
                 if timestamp
                 else "unknown"
             ),
-        )
-        if dest.endswith("/") or dest.endswith("\\"):
-            dest += basename
-        if os.path.exists(dest):
-            log_info(f"File {dest} already exists, skipping download.")
-            continue
-        log_info(f"Processing image: {image}, destination: {dest}")
-        if not dest:
-            log_info(f"Skipping image with empty destination: {image}")
-            continue
+            "utchour": (
+                datetime.fromtimestamp(timestamp).strftime("%H")
+                if timestamp
+                else "unknown"
+            ),
+            "utcminute": (
+                datetime.fromtimestamp(timestamp).strftime("%M")
+                if timestamp
+                else "unknown"
+            ),
+            "basename": os.path.basename(url),
+            "extname": os.path.splitext(url)[1],
+        }
+        data = None
         try:
-            download_image(url, dest)
+            data = get_image(url)
         except Exception as e:
-            log_info(f"Failed to download image {url}: {e}")
+            log_info(f"Failed to get image {url}: {e}")
+        if data is None:
+            log_info(f"Skipping export for {url} due to previous error.")
+            continue
+        log_info(f"Exporting {url} with variables {variables}...")
+        try:
+            exporter.do_export(data, preset.exports, url, variables)
+        except Exception as e:
+            log_info(f"Error during export for {url}: {e}")
+            continue
+
     log_info(f"Polling for target {target.name} completed.")

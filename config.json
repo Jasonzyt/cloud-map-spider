@@ -31,11 +31,18 @@
       "interval": 3600
     }
   ],
-  "presets": {
-    "nsmc.org.cn": {
-      "export": "./data/{target_name}/{utcdate}/"
+  "presets": [
+    {
+      "name": "nsmc.org.cn",
+      "exports": [
+        {
+          "name": "Local files",
+          "type": "file",
+          "path": "./data/{target_name}/{utcdate}/"
+        }
+      ]
     }
-  },
+  ],
   "pushes": [
     {
       "name": "bark-iphone",

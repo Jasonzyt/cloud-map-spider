@@ -17,14 +17,26 @@ class Target:
         return f"Target(preset='{self.preset}', name='{self.name}')"
 
 
-class Preset:
-    def __init__(self, export: str, **kwargs):
-        self.export = export
+class Export:
+    def __init__(self, name: str, type: str, **kwargs):
+        self.name = name
+        self.type = type
         for key, value in kwargs.items():
             setattr(self, key, value)
 
     def __repr__(self):
-        return f"Preset(export={self.export})"
+        return f"Export(name='{self.name}')"
+
+
+class Preset:
+    def __init__(self, name: str, exports: list[dict], **kwargs):
+        self.name = name
+        self.exports = [Export(**export) for export in exports]
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __repr__(self):
+        return f"Preset(name={self.name})"
 
 
 class Push:
@@ -43,28 +55,25 @@ class Config:
     def __init__(
         self,
         targets: List[Target],
-        presets: Dict[str, Preset],
+        presets: List[Preset],
         pushes: List[Push],
     ):
         self.targets = targets
         self.presets = presets
         self.pushes = pushes
 
-    def get_preset(self, name: str) -> Preset:
-        return self.presets.get(name)
+    def get_preset(self, name: str) -> Preset | None:
+        for preset in self.presets:
+            if preset.name == name:
+                return preset
+        return None
 
     @staticmethod
     def from_json(json_content: str) -> "Config":
         data = json.loads(json_content)
 
-        # Parse targets
         targets = [Target(**target) for target in data.get("targets", [])]
-
-        # Parse presets
-        presets = {
-            key: Preset(**value) for key, value in data.get("presets", {}).items()
-        }
-
+        presets = [Preset(**preset) for preset in data.get("presets", [])]
         pushes = [Push(**push) for push in data.get("pushes", [])]
 
         return Config(targets, presets, pushes)
@@ -73,9 +82,7 @@ class Config:
         return json.dumps(
             {
                 "targets": [target.__dict__ for target in self.targets],
-                "presets": {
-                    key: preset.__dict__ for key, preset in self.presets.items()
-                },
+                "presets": [preset.__dict__ for preset in self.presets],
                 "pushes": [push.__dict__ for push in self.pushes],
             },
             indent=2,

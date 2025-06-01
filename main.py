@@ -18,7 +18,7 @@ def load_config():
 
 
 def do_polling(target: config.Target, preset: config.Preset):
-    log_info(f"Starting polling for target: {target.name} with preset: {preset.export}")
+    log_info(f"Starting polling for target: {target.name}")
     while True:
         next_poll = time.time() + target.interval
         poll(target, preset)
