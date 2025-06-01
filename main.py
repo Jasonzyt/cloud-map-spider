@@ -52,6 +52,7 @@ def main():
             delay(1)  # Main loop delay
         except KeyboardInterrupt:
             log_error("Keyboard interrupt received, exiting.")
+            push.immediate_push("Spider stopped by user.", conf.pushes)
             break
 
 
