@@ -26,15 +26,15 @@ def process_queue(conf: Config):
 
 def do_push(messages: list[str], pushes: list[Push]):
     for push in pushes:
-        if push.enabled and push.app in PUSH_APPS:
+        if push.enabled and push.app in PUSHERS:
             try:
-                PUSH_APPS[push.app](push, messages)
+                PUSHERS[push.app](push, messages)
             except Exception as e:
                 print(f"[Push] Error pushing to {push.app}: {e}")
                 pass
 
 
-# Apps
+# Pushers
 
 
 def push_bark(push: Push, messages: list[str]):
@@ -63,6 +63,6 @@ def push_bark(push: Push, messages: list[str]):
     requests.post(url, json=payload, headers=headers)
 
 
-PUSH_APPS = {
+PUSHERS = {
     "bark": push_bark,
 }

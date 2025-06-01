@@ -4,7 +4,7 @@ import config
 from logger import log_error, log_info
 from network import poll
 import network
-import push
+import pusher
 
 
 def load_config():
@@ -29,7 +29,7 @@ def do_polling(target: config.Target, preset: config.Preset):
 
 def start_threads(conf: config.Config):
     start_thread(target=network.process_queue)
-    start_thread(target=push.process_queue, args=(conf,))
+    start_thread(target=pusher.process_queue, args=(conf,))
     log_info("Started threads for processing queues.")
     for target in conf.targets:
         log_info(f"Starting thread for target: {target.name}")
@@ -52,7 +52,7 @@ def main():
             delay(1)  # Main loop delay
         except KeyboardInterrupt:
             log_info("Keyboard interrupt received, exiting.")
-            push.immediate_push("Spider stopped by user.", conf.pushes)
+            pusher.immediate_push("Spider stopped by user.", conf.pushes)
             break
 
 
