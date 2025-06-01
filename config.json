@@ -33,7 +33,7 @@
   ],
   "presets": {
     "nsmc.org.cn": {
-      "export": "./data/{target_name}/"
+      "export": "./data/{target_name}/{utcdate}/"
     }
   }
 }

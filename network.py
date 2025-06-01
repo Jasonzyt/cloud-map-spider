@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import queue
 import time
@@ -27,6 +28,13 @@ def process_queue():
 def delay(seconds: float):
     # log_info(f"Delaying for {seconds} seconds...")
     time.sleep(seconds)
+
+
+def delay_until(timestamp: float):
+    now = int(time.time())
+    if timestamp <= now:
+        return
+    delay(timestamp - now)
 
 
 def http_get(url):
@@ -79,7 +87,14 @@ def poll(target: Target, preset: Preset):
         basename = os.path.basename(url)
         fmt = preset.export
         dest = fmt.format(
-            basename=basename, target_name=target.name, timestamp=timestamp
+            basename=basename,
+            target_name=target.name,
+            timestamp=timestamp,
+            utcdate=(
+                datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
+                if timestamp
+                else "unknown"
+            ),
         )
         if dest.endswith("/") or dest.endswith("\\"):
             dest += basename
