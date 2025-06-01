@@ -36,7 +36,7 @@ class Push:
             setattr(self, key, value)
 
     def __repr__(self):
-        return f"PushConfig(app='{self.app}', enabled={self.enabled})"
+        return f"Push(app='{self.app}', enabled={self.enabled})"
 
 
 class Config:

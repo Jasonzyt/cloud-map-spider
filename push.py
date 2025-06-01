@@ -4,8 +4,6 @@ from async_utils import delay
 from config import Config, Push
 import requests
 
-from logger import log_info
-
 q = []
 
 
@@ -24,17 +22,18 @@ def process_queue(conf: Config):
                 do_push(q, conf.pushes)
             delay(10)
         except Exception as e:
-            log_info(f"Error processing push queue: {e}")
+            print(f"[Push] Error processing queue: {e}")
+            pass
 
 
 def do_push(messages: list[str], pushes: list[Push]):
-    log_info(f"Sending push notification: {messages}")
     for push in pushes:
         if push.enabled and push.app in PUSH_APPS:
             try:
                 PUSH_APPS[push.app](push, messages)
             except Exception as e:
-                log_info(f"Failed to send push notification via {push.app}: {e}")
+                print(f"[Push] Error pushing to {push.app}: {e}")
+                pass
 
 
 # Apps
@@ -53,8 +52,8 @@ def push_bark(push: Push, messages: list[str]):
     else:
         return
     payload = {
-        "title": "Error Notification",
-        "body": message,
+        "title": "Push from cloud-map-spider",
+        "body": body,
         "group": "Cloud Map Spider",
         "sound": "default",
     }
@@ -63,14 +62,7 @@ def push_bark(push: Push, messages: list[str]):
         "Content-Type": "application/json",
     }
 
-    response = requests.post(url, json=payload, headers=headers)
-
-    if response.status_code == 200:
-        log_info(f"Push notification sent successfully: {response.json()}")
-    else:
-        log_info(
-            f"Failed to send push notification: {response.status_code} {response.text}"
-        )
+    requests.post(url, json=payload, headers=headers)
 
 
 PUSH_APPS = {

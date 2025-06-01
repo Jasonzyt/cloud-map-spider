@@ -40,7 +40,8 @@
     {
       "name": "bark-iphone",
       "app": "bark",
-      "url": "https://api.day.app/your_bark_key"
+      "enabled": true,
+      "url": "https://api.day.app/your_bark_key/"
     }
   ]
 }
