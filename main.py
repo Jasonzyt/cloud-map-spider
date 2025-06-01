@@ -2,7 +2,9 @@ import time
 from async_utils import delay, delay_until, start_thread
 import config
 from logger import log_error, log_info
-from network import poll, process_queue
+from network import poll
+import network
+import push
 
 
 def load_config():
@@ -26,15 +28,12 @@ def do_polling(target: config.Target, preset: config.Preset):
 
 
 def start_threads(conf: config.Config):
-    start_thread(target=process_queue, daemon=True)
-    log_info("Started thread for processing queue.")
+    start_thread(target=network.process_queue)
+    start_thread(target=push.process_queue, args=(conf))
+    log_info("Started threads for processing queues.")
     for target in conf.targets:
         log_info(f"Starting thread for target: {target.name}")
-        start_thread(
-            target=do_polling,
-            args=(target, conf.get_preset(target.preset)),
-            daemon=True,
-        )
+        start_thread(target=do_polling, args=(target, conf.get_preset(target.preset)))
 
 
 def main():

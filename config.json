@@ -35,5 +35,12 @@
     "nsmc.org.cn": {
       "export": "./data/{target_name}/{utcdate}/"
     }
-  }
+  },
+  "pushes": [
+    {
+      "name": "bark-iphone",
+      "app": "bark",
+      "url": "https://api.day.app/your_bark_key"
+    }
+  ]
 }
