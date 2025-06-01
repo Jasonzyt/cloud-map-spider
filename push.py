@@ -1,5 +1,3 @@
-from queue import Queue
-import time
 from async_utils import delay
 from config import Config, Push
 import requests
