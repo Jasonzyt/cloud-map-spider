@@ -1,4 +1,5 @@
 import threading
+import time
 
 
 class Promise:
@@ -30,3 +31,22 @@ class Promise:
             while not self._is_resolved:
                 self._condition.wait()
             return self._result
+
+
+def delay(seconds: float):
+    # log_info(f"Delaying for {seconds} seconds...")
+    time.sleep(seconds)
+
+
+def delay_until(timestamp: float):
+    now = int(time.time())
+    if timestamp <= now:
+        return
+    delay(timestamp - now)
+
+
+def start_thread(target, *args, **kwargs):
+    thread = threading.Thread(target=target, args=args, kwargs=kwargs)
+    thread.daemon = True  # Set as daemon thread
+    thread.start()
+    return thread

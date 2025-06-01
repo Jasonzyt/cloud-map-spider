@@ -1,8 +1,8 @@
 import time
+from async_utils import delay, delay_until, start_thread
 import config
-import threading
 from logger import log_error, log_info
-from network import delay, delay_until, poll, process_queue
+from network import poll, process_queue
 
 
 def load_config():
@@ -26,15 +26,15 @@ def do_polling(target: config.Target, preset: config.Preset):
 
 
 def start_threads(conf: config.Config):
-    threading.Thread(target=process_queue, daemon=True).start()
+    start_thread(target=process_queue, daemon=True)
     log_info("Started thread for processing queue.")
     for target in conf.targets:
         log_info(f"Starting thread for target: {target.name}")
-        threading.Thread(
+        start_thread(
             target=do_polling,
             args=(target, conf.get_preset(target.preset)),
             daemon=True,
-        ).start()
+        )
 
 
 def main():
@@ -52,7 +52,7 @@ def main():
         try:
             delay(1)  # Main loop delay
         except KeyboardInterrupt:
-            log_info("Keyboard interrupt received, exiting.")
+            log_error("Keyboard interrupt received, exiting.")
             break
 
 

@@ -1,13 +1,12 @@
 from datetime import datetime
 import os
 import queue
-import time
 import requests
 
 from config import Preset, Target
 from logger import log_info
 from presets import MANIFEST_PARSERS
-from promise import Promise
+from async_utils import Promise, delay
 
 
 q = queue.Queue()
@@ -23,18 +22,6 @@ def process_queue():
         if promise is not None:
             promise.resolve(response)
         delay(10)
-
-
-def delay(seconds: float):
-    # log_info(f"Delaying for {seconds} seconds...")
-    time.sleep(seconds)
-
-
-def delay_until(timestamp: float):
-    now = int(time.time())
-    if timestamp <= now:
-        return
-    delay(timestamp - now)
 
 
 def http_get(url):
