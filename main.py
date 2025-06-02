@@ -20,11 +20,14 @@ def load_config():
 def do_polling(target: config.Target, preset: config.Preset):
     log_info(f"Starting polling for target: {target.name}")
     while True:
-        next_poll = time.time() + target.interval
-        poll(target, preset)
-        if time.time() < next_poll:
-            log_info(f"Polling for {target} completed, waiting for next poll.")
-            delay_until(next_poll)
+        try:
+            next_poll = time.time() + target.interval
+            poll(target, preset)
+            if time.time() < next_poll:
+                log_info(f"Polling for {target} completed, waiting for next poll.")
+                delay_until(next_poll)
+        except Exception as e:
+            log_error(f"Error while polling target {target.name}: {e}")
 
 
 def start_threads(conf: config.Config):

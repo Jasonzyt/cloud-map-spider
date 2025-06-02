@@ -63,8 +63,8 @@ def poll(target: Target, preset: Preset):
         timestamp = image.get("timestamp")
         url = image.get("url")
         url_log = log.search(url)
-        if url_log is not None and (url_log.success or url_log.downloaded):
-            log_info(f"Skipping {url} as it has already been processed or downloaded.")
+        if url_log is not None and url_log.success:
+            log_info(f"Skipping {url} as it has already been processed")
             continue
         elif url_log is None:
             url_log = UrlLog(url, timestamp)
@@ -93,14 +93,15 @@ def poll(target: Target, preset: Preset):
         }
         data = None
         try:
-            data = get_image(url)
-            tempfile = f"./temp/{variables['basename']}"
-            with open(tempfile, "wb") as f:
-                log_info(f"Saving image to temporary file {tempfile}...")
-                f.write(data)
-            url_log.tempfile = tempfile
-            log.update(url_log)
-            log.save()
+            if not url_log.downloaded:
+                data = get_image(url)
+                tempfile = f"./temp/{variables['basename']}"
+                with open(tempfile, "wb") as f:
+                    log_info(f"Saving image to temporary file {tempfile}...")
+                    f.write(data)
+                url_log.tempfile = tempfile
+                log.update(url_log)
+                log.save()
         except Exception as e:
             log_error(f"Failed to get image {url}: {e}")
         if data is None:
