@@ -17,13 +17,16 @@ log = Log.load()
 
 def process_queue():
     while True:
-        (url, promise) = q.get()
-        if url is None:
-            break
-        response = requests.get(url)
-        log_info(f"GET {url} {response.status_code} {response.reason}")
-        if promise is not None:
-            promise.resolve(response)
+        try:
+            (url, promise) = q.get()
+            if url is None:
+                break
+            response = requests.get(url)
+            log_info(f"GET {url} {response.status_code} {response.reason}")
+            if promise is not None:
+                promise.resolve(response)
+        except Exception as e:
+            log_error(f"Error when getting {url}: {e}")
         delay(5)
 
 
@@ -114,6 +117,10 @@ def poll(target: Target, preset: Preset):
                 log_info(f"All exports are done successfully, removing temp file...")
                 os.remove(url_log.tempfile)
                 url_log.tempfile = None
+            else:
+                log_info(
+                    f"Some exports failed, keeping temp file for further processing."
+                )
             log.update(url_log)
             log.save()
         except Exception as e:
